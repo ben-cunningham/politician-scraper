@@ -13,6 +13,7 @@ def check_politician(entity):
 def scrape(url):
     html = urllib.urlopen(url).read()
     soup = BeautifulSoup(html, 'html.parser')
+    name = soup.find('h1', {'id': 'firstHeading'}).getText()
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
@@ -20,4 +21,4 @@ if __name__ == '__main__':
     pages = soup.find('div', { 'id': 'mw-pages' })
     for group in pages.find_all('div', {'class': 'mw-category-group'}):
         for link in group.find_all('a'):
-            print link['href']
+            scrape(BASE_URL + link['href'])
