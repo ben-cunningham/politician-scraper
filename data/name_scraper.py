@@ -14,6 +14,13 @@ def scrape(url):
     html = urllib.urlopen(url).read()
     soup = BeautifulSoup(html, 'html.parser')
     name = soup.find('h1', {'id': 'firstHeading'}).getText()
+    
+    content = soup.find('div', {'id': 'bodyContent'})
+    for a in content.find_all('a'):
+        href = a['href']
+        name = re.match(r'/wiki/(\w+)', href)
+        if name:
+            article = name.group(1)
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
