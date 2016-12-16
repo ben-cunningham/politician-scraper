@@ -35,6 +35,10 @@ def scrape(url):
         name = re.match(r'/wiki/(\w+)', href)
         if name:
             article = name.group(1)
+            value = get_entity_value(article)
+            is_politician = check_politician(value)
+            if is_politician:
+                pass
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
