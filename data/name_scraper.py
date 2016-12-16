@@ -15,6 +15,15 @@ names = {}
 def check_politician(entity):
     pass
 
+def get_entity_value(title):
+    url = BASE_URL + ENTITY_QUERY_URL + title
+    response = urllib.urlopen(url).read()
+    response = json.loads(response)
+    pages =  response['query']['pages']
+    for val in pages:
+        if 'pageprops' in pages[val]:
+            return pages[val]['pageprops']['wikibase_item']
+
 def scrape(url):
     html = urllib.urlopen(url).read()
     soup = BeautifulSoup(html, 'html.parser')
