@@ -2,8 +2,10 @@ from bs4 import BeautifulSoup
 
 import urllib
 import re
+import json
 
 BASE_URL = 'https://en.wikipedia.org'
+ENTITY_QUERY_URL = '/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&redirects=1&format=json&titles='
 WIKI_URL_21 = 'https://en.wikipedia.org/w/index.php?title=Category:21st-century_American_politicians'
 WIKI_URL_20 = 'https://en.wikipedia.org/w/index.php?title=Category:20th-century_American_politicians'
 
