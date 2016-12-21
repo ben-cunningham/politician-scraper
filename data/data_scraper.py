@@ -39,6 +39,9 @@ def get_entity_value(title):
         if 'pageprops' in pages[val]:
             return pages[val]['pageprops']['wikibase_item']
 
+def get_history(page):
+    pass
+
 def scrape(url):
     html = urllib.urlopen(url).read()
     soup = BeautifulSoup(html, 'html.parser')
@@ -51,11 +54,13 @@ def scrape(url):
         if name:
             article = name.group(1)
             value = get_entity_value(article)
-            if value == None:
+            if value == None or value in names:
                 continue
+            names[value] = article
             is_politician = check_politician(value)
             if is_politician:
                 print article
+                scrape(BASE_URL + a['href'])
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
