@@ -14,7 +14,21 @@ urls= []
 names = {}
 
 def check_politician(entity):
-    pass
+    url = POLI_QUERY_URL + '&entity=' +entity
+    response = urllib.urlopen(url).read()
+    response = json.loads(response)
+
+    if 'claims' in response:
+        if 'P106' in response['claims']:
+            for d in response['claims']['P106']: 
+                if 'mainsnak' in d:
+                    if 'datavalue' in d['mainsnak']:
+                        if 'value' in d['mainsnak']['datavalue']:
+                            if 'id' in d['mainsnak']['datavalue']['value']:
+                                if d['mainsnak']['datavalue']['value']['id'] == 'Q82955':
+                                    return True
+            
+    return False
 
 def get_entity_value(title):
     url = BASE_URL + ENTITY_QUERY_URL + title
@@ -37,9 +51,11 @@ def scrape(url):
         if name:
             article = name.group(1)
             value = get_entity_value(article)
+            if value == None:
+                continue
             is_politician = check_politician(value)
             if is_politician:
-                pass
+                print article
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
