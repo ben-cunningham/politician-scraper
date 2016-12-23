@@ -3,11 +3,14 @@ import psycopg2
 import configparser
 import urlparse
 
+from queries import Queries
+
 conn = None
 
 def create_tables():
     cur = conn.cursor()
-    cur.execute("CREATE TABLE test (id serial PRIMARY KEY, num integer, data varchar);")
+    cur.execute(Queries.create_edge)
+    cur.execute(Queries.create_vertex)
     cur.close()
     
 if __name__ == '__main__':
