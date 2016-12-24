@@ -33,7 +33,8 @@ class DB():
         cur.execute(Queries.create_vertex)
         cur.close()
 
-    def insert_politician(self, politician):
+    def insert_politician(self, entity, name):
         cur = self.conn.cursor()
-        cur.execute(Queries.insert_politician)
+        cur.execute(Queries.insert_politician, (entity, name,))
+        self.conn.commit()
         cur.close()
