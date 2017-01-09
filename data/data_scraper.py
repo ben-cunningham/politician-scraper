@@ -45,33 +45,37 @@ def get_entity_value(title):
 def get_history(page):
     pass
 
-def scrape(title):
-    html = urllib.urlopen(BASE_URL + title).read()
-    soup = BeautifulSoup(html, 'html.parser')
-    name = soup.find('h1', {'id': 'firstHeading'}).getText()
-    article_name = re.match(r'/wiki/(\w+)', title)
-
-    if not article_name:
-        return
-    entity = get_entity_value(article_name.group(1))
-    if entity:
-        if check_politician(entity):
-            db.insert_politician(entity, article_name.group(1), BASE_URL + title)
+def scrape():
     
-    content = soup.find('div', {'id': 'bodyContent'})
-    for a in content.find_all('a'):
-        href = a['href']
-        name = re.match(r'/wiki/(\w+)', href)
-        if name:
-            article = name.group(1)
-            value = get_entity_value(article)
-            if value == None or value in names:
-                continue
-            names[value] = article
-            is_politician = check_politician(value)
-            if is_politician:
-                print article
-                scrape(a['href'])
+    while len(urls) > 0:
+        title = urls.pop(0)
+
+        html = urllib.urlopen(BASE_URL + title).read()
+        soup = BeautifulSoup(html, 'html.parser')
+        name = soup.find('h1', {'id': 'firstHeading'}).getText()
+        article_name = re.match(r'/wiki/(\w+)', title)
+
+        if not article_name:
+            return
+        entity = get_entity_value(article_name.group(1))
+        if entity:
+            if check_politician(entity):
+                db.insert_politician(entity, article_name.group(1), BASE_URL + title)
+
+        content = soup.find('div', {'id': 'bodyContent'})
+        for a in content.find_all('a'):
+            href = a['href']
+            name = re.match(r'/wiki/(\w+)', href)
+            if name:
+                article = name.group(1)
+                value = get_entity_value(article)
+                if value == None or value in names:
+                    continue
+                names[value] = article
+                is_politician = check_politician(value)
+                if is_politician:
+                    print article
+                    urls.append(a['href'])
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
@@ -79,4 +83,5 @@ if __name__ == '__main__':
     pages = soup.find('div', { 'id': 'mw-pages' })
     for group in pages.find_all('div', {'class': 'mw-category-group'}):
         for link in group.find_all('a'):
-            scrape(link['href'])
+            urls.append(link['href'])
+            scrape()
