@@ -4,3 +4,4 @@ config.ini
 *.pyc
 venv/*
 *.swp
+*.swo
