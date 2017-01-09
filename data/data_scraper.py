@@ -56,8 +56,8 @@ def scrape(title):
     entity = get_entity_value(article_name.group(1))
     if entity:
         if check_politician(entity):
-            db.insert_politician(entity, article_name.group(1))
-     
+            db.insert_politician(entity, article_name.group(1), BASE_URL + title)
+    
     content = soup.find('div', {'id': 'bodyContent'})
     for a in content.find_all('a'):
         href = a['href']

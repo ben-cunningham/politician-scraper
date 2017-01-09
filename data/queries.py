@@ -11,13 +11,14 @@ class Queries:
     create_vertex = """
     create table vertex(
         entity char(10) primary key,
-        name char(100)
+        name char(100),
+        url varchar(500)
     );
     """
 
     insert_politician = """
-    insert into vertex (entity, name)
-    values (%s, %s);
+    insert into vertex (entity, name, url)
+    values (%s, %s, %s);
     """
 
     insert_connection = """
