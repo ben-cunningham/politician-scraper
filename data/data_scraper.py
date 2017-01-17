@@ -35,7 +35,14 @@ def check_politician(entity):
 
 def get_entity_value(title):
     url = BASE_URL + ENTITY_QUERY_URL + title
-    response = urllib.urlopen(url).read()
+    response = None
+    while True:
+        try:
+            response = urllib.urlopen(url).read()
+        except:
+            print 'Cannot reach url: ' +url
+            continue
+        break
     response = json.loads(response)
     pages =  response['query']['pages']
     for val in pages:
@@ -49,8 +56,14 @@ def scrape():
     
     while len(urls) > 0:
         title = urls.pop(0)
+        while True:
+            try:
+                html = urllib.urlopen(BASE_URL + title).read()
+            except:
+                print 'Cannot reach url: ' +title
+                continue
+            break
 
-        html = urllib.urlopen(BASE_URL + title).read()
         soup = BeautifulSoup(html, 'html.parser')
         name = soup.find('h1', {'id': 'firstHeading'}).getText()
         article_name = re.match(r'/wiki/(\w+)', title)
