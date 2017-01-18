@@ -19,7 +19,12 @@ db = DB()
 def check_politician(entity):
     url = POLI_QUERY_URL + '&entity=' +entity
     response = urllib.urlopen(url).read()
-    response = json.loads(response)
+
+    try:
+        response = json.loads(response)
+    except:
+        print "Could not load response for entitiy: " +entity
+        return False
 
     if 'claims' in response:
         if 'P106' in response['claims']:
@@ -43,7 +48,13 @@ def get_entity_value(title):
             print 'Cannot reach url: ' +url
             continue
         break
-    response = json.loads(response)
+
+    try:
+        response = json.loads(response)
+    except:
+        print "Could not load json file for: " +title
+        return ""
+
     pages =  response['query']['pages']
     for val in pages:
         if 'pageprops' in pages[val]:
