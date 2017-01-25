@@ -15,7 +15,7 @@ WIKI_URL_21 = 'https://en.wikipedia.org/w/index.php?title=Category:21st-century_
 WIKI_URL_20 = 'https://en.wikipedia.org/w/index.php?title=Category:20th-century_American_politicians'
 
 urls= []
-names = {}
+names = set()
 db = DB()
 
 def check_politician(response):
@@ -86,11 +86,12 @@ def scrape():
             href = a['href']
             name = re.match(r'/wiki/(\w+)', href)
             if name:
-                atags.append(BASE_URL +ENTITY_QUERY_URL +name.group(1))
+                atags.append((BASE_URL +ENTITY_QUERY_URL +name.group(1), name.group(1), ))
         
         rs = []
         print '****** start entitiy requests ********'
-        rs = (grequests.get(u) for u in atags)
+        for u in atags:
+            rs.append(grequests.get(u[0], headers={'x-correlation-id': u[1]}))
         responses = grequests.map(rs)
         print '****** end requests ********'
         
@@ -101,11 +102,12 @@ def scrape():
             value = get_entity_value(article.text)
             if value == None or value in names:
                 continue
-            names[value] = article
-            values.append(POLI_QUERY_URL + '&entity=' +value)
+            names.add(value)
+            values.append((POLI_QUERY_URL + '&entity=' +value, article.request.headers['x-correlation-id'], ))
 
         print '****** start polititcal check requests ********'
-        rs = (grequests.get(u) for u in atags)
+        for u in values:
+            rs.append(grequests.get(u[0], headers={'x-correlation-id': u[1]}))
         responses = grequests.map(rs)
         print '****** end requests ********'
         
@@ -113,7 +115,7 @@ def scrape():
             is_politician = check_politician(val.text)
             if is_politician:
                 print article
-                urls.append(a['href'])
+                urls.append('/wiki/' +val.request.headers['x-correlation-id'])
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
