@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+import grequests
+import requests
 
 import urllib
 import re
@@ -16,14 +18,11 @@ urls= []
 names = {}
 db = DB()
 
-def check_politician(entity):
-    url = POLI_QUERY_URL + '&entity=' +entity
-    response = urllib.urlopen(url).read()
-
+def check_politician(response):
     try:
         response = json.loads(response)
     except:
-        print "Could not load response for entitiy: " +entity
+        print "Could not load response for entitiy: " +response
         return False
 
     if 'claims' in response:
@@ -38,17 +37,7 @@ def check_politician(entity):
             
     return False
 
-def get_entity_value(title):
-    url = BASE_URL + ENTITY_QUERY_URL + title
-    response = None
-    while True:
-        try:
-            response = urllib.urlopen(url).read()
-        except:
-            print 'Cannot reach url: ' +url
-            continue
-        break
-
+def get_entity_value(response):
     try:
         response = json.loads(response)
     except:
@@ -81,25 +70,50 @@ def scrape():
 
         if not article_name:
             return
-        entity = get_entity_value(article_name.group(1))
+            
+        response = urllib.urlopen(BASE_URL +ENTITY_QUERY_URL +article_name.group(1)).read() 
+        entity = get_entity_value(response)
         if entity:
+            url = POLI_QUERY_URL + '&entity=' +entity
+            response = urllib.urlopen(url).read()
             if check_politician(entity):
                 db.insert_politician(entity, article_name.group(1), BASE_URL + title)
 
         content = soup.find('div', {'id': 'bodyContent'})
+        
+        atags = []
         for a in content.find_all('a'):
             href = a['href']
             name = re.match(r'/wiki/(\w+)', href)
             if name:
-                article = name.group(1)
-                value = get_entity_value(article)
-                if value == None or value in names:
-                    continue
-                names[value] = article
-                is_politician = check_politician(value)
-                if is_politician:
-                    print article
-                    urls.append(a['href'])
+                atags.append(BASE_URL +ENTITY_QUERY_URL +name.group(1))
+        
+        rs = []
+        print '****** start entitiy requests ********'
+        rs = (grequests.get(u) for u in atags)
+        responses = grequests.map(rs)
+        print '****** end requests ********'
+        
+        values = []
+        for article in responses:
+            if article is None:
+                continue
+            value = get_entity_value(article.text)
+            if value == None or value in names:
+                continue
+            names[value] = article
+            values.append(POLI_QUERY_URL + '&entity=' +value)
+
+        print '****** start polititcal check requests ********'
+        rs = (grequests.get(u) for u in atags)
+        responses = grequests.map(rs)
+        print '****** end requests ********'
+        
+        for val in responses:
+            is_politician = check_politician(val.text)
+            if is_politician:
+                print article
+                urls.append(a['href'])
 
 if __name__ == '__main__':
     html = urllib.urlopen(WIKI_URL_21).read()
