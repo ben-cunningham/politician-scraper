@@ -41,7 +41,7 @@ def get_entity_value(response):
     try:
         response = json.loads(response)
     except:
-        print "Could not load json file for: " +title
+        print "Could not load json file for: " 
         return ""
 
     pages =  response['query']['pages']
