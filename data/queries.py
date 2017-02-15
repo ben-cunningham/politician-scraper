@@ -25,3 +25,7 @@ class Queries:
     insert into edge(to, from)
     values (%s, %s);
     """
+
+    fetch_rows = """
+    select * from vertex limit 20;
+    """

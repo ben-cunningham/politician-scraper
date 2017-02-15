@@ -23,7 +23,7 @@ class DB():
             port=url.port
         )
     
-        self.create_tables()
+        # self.create_tables()
         self.conn.commit()
         # self.conn.close() 
     
@@ -38,3 +38,9 @@ class DB():
         cur.execute(Queries.insert_politician, (entity, name, url, ))
         self.conn.commit()
         cur.close()
+
+    def get_rows(self):
+        cur = self.conn.cursor()
+        cur.execute(Queries.fetch_rows)
+        return [row for row in cur]
+        
