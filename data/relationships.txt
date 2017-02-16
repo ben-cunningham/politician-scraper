@@ -1,0 +1,22 @@
+List of relationships in Politics
+
+1. Spouse
+2. Child
+3. Parent
+4. Relative (Grandparent/Cousin/In-law)
+5. Aid
+6. Advisor
+7. Vice President
+8. President
+9. Running Mate
+10. Successor
+11. Predecessor
+12. Sibling
+13. Co-workers
+14. Assisstant
+15. Counsil
+16. Deputy
+17. Cabinet Member
+18. Campaign Rival
+19. None
+20. Consultant
