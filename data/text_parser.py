@@ -1,7 +1,12 @@
 from textblob import TextBlob
 from textblob.classifiers import NaiveBayesClassifier
 
-if __name__ == '__main__':
-    train = []
-    cl = NaiveBayesClassifier(train)
-    cl.classify("")
+class TextParser():
+    
+    def __init__(self):
+        train = []
+
+        self.cl = NaiveBayesClassifier(train)
+
+    def classify(string):
+        return cl.classify(string)
