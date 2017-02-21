@@ -29,3 +29,7 @@ class Queries:
     fetch_rows = """
     select * from vertex limit 20;
     """
+
+    get_entity = """
+    select * from vertex where name='%s';
+    """
