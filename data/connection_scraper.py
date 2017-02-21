@@ -11,7 +11,7 @@ def is_politician(url):
     return True
 
 def get_sentances(p):
-    return []
+    return p.string.split('.')
 
 def scrape_page(url):
     response = urllib.urlopen(url)
