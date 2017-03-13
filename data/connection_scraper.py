@@ -1,6 +1,5 @@
 from db import DB
-import urllib
-import re
+import re, json, urllib
 from textblob import TextBlob
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
@@ -10,7 +9,7 @@ db = DB()
 parser = TextParser()
 
 WIKIPEDIA_SEARCH_URL = \
-    "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=jsonfm&search="
+    "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&search="
 
 def is_politician(name):
     row = db.get_entity(name)
@@ -23,10 +22,19 @@ def get_sentances(p):
     return blob.sentences
 
 def get_wiki_url(phrase):
-    
+    res = urllib.urlopen(WIKIPEDIA_SEARCH_URL +str(phrase.encode('ascii', 'ignore'))).read()
+    res =  json.loads(res)
+    if len(res) >= 4:
+        if len(res[3]) > 0:
+            return res[3][0]
 
-def get_name_from_url(data):
-    pass
+    return ""
+
+def get_name_from_url(url):
+    name = re.match(r'/wiki/(\w+)', url)
+    if name:
+        return name.group(1)
+    return None
 
 def scrape_page(url):
     response = urllib.urlopen(url)
@@ -48,6 +56,7 @@ def scrape_page(url):
             for noun in nouns:
                 url = get_wiki_url(noun)
                 name = get_name_from_url(url)
+                print name
                 if is_politician(name):
                     pass
 
