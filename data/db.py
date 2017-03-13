@@ -46,7 +46,7 @@ class DB():
     
     def get_entity(self, name):
         cur = self.conn.cursor()
-        cur.exectute(Queries.get_entity, (name, ))
+        cur.execute(Queries.get_entity, (name, ))
         l = [row for row in cur]
         cur.close()
         return l

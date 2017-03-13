@@ -31,5 +31,5 @@ class Queries:
     """
 
     get_entity = """
-    select * from vertex where name='%s';
+    select * from vertex where name=%s;
     """
