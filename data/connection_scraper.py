@@ -17,7 +17,13 @@ def get_sentances(p):
     if p.getText() is None:
         return []
     blob = TextBlob(p.getText())
-    return blob.raw_sentences
+    return blob.sentences
+
+def get_wiki_url(phrase):
+    pass
+
+def is_wiki_page(data):
+    pass
 
 def scrape_page(url):
     response = urllib.urlopen(url)
@@ -32,25 +38,12 @@ def scrape_page(url):
         for s in sentances:
             if len(s) <= 1:
                 continue
-            
-            def get_sentence(v):
-                print v
-                return True
-            soup_sentances.append(p.find_all(string=get_sentence))
-         
-        sents = [val for sublist in soup_sentances for val in sublist]
-        for s in sents:
-            if isinstance(s, NavigableString):
-                continue
-            for a in s.find_all('a'):
-                href = a['href']
-                name = re.match(r'/wiki/(\w+)', href)
-                print name
-                if name:
-                    if is_politician(name):
-                        print s
-                        cat = parser.classify(s.getText())
-                        # insert connection into database here
+            #soup_sentances.append(p.find_all(string=get_sentence))
+            #foo = p.find(string=re.compile('President of the United States</a> in the'))
+            nouns = s.noun_phrases
+            #print nouns
+            for noun in nouns:
+                pass
 
 def scrape():
     rows = db.get_rows()
