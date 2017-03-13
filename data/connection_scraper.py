@@ -49,8 +49,6 @@ def scrape_page(url):
         for s in sentances:
             if len(s) <= 1:
                 continue
-            #soup_sentances.append(p.find_all(string=get_sentence))
-            #foo = p.find(string=re.compile('President of the United States</a> in the'))
             nouns = s.noun_phrases
             #print nouns
             for noun in nouns:
