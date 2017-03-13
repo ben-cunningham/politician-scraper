@@ -15,6 +15,9 @@ def is_politician(name):
     row = db.get_entity(name)
     return len(row) > 0
 
+def insert_connection(e1, e2, cls):
+    pass
+
 def get_sentances(p):
     if p.getText() is None:
         return []
@@ -36,7 +39,7 @@ def get_name_from_url(url):
         return name.group(1)
     return None
 
-def scrape_page(url):
+def scrape_page(e1, url):
     response = urllib.urlopen(url)
     soup = BeautifulSoup(response, 'html.parser')
     soup = soup.find('div', {'id': 'bodyContent'})
@@ -50,20 +53,20 @@ def scrape_page(url):
             if len(s) <= 1:
                 continue
             nouns = s.noun_phrases
-            #print nouns
             for noun in nouns:
                 url = get_wiki_url(noun)
                 name = get_name_from_url(url)
                 if not name:
                     continue
-                print name
                 if is_politician(name):
-                    pass
+                    e2 = get_entity(name)
+                    cls = parser.classify(s)
+                    insert_connection(e1, e2, cls)
 
 def scrape():
     rows = db.get_rows()
     for row in rows:
-        scrape_page(row[2])
+        scrape_page("", row[2])
 
 if __name__ == '__main__':
     scrape()
