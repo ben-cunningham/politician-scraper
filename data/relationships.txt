@@ -20,3 +20,4 @@ List of relationships in Politics
 18. Campaign Rival
 19. None
 20. Consultant
+21. Intern
