@@ -9,6 +9,9 @@ from text_parser import TextParser
 db = DB()
 parser = TextParser()
 
+WIKIPEDIA_SEARCH_URL = \
+    "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=jsonfm&search="
+
 def is_politician(name):
     row = db.get_entity(name)
     return len(row) > 0
@@ -20,9 +23,9 @@ def get_sentances(p):
     return blob.sentences
 
 def get_wiki_url(phrase):
-    pass
+    
 
-def is_wiki_page(data):
+def get_name_from_url(data):
     pass
 
 def scrape_page(url):
@@ -43,7 +46,10 @@ def scrape_page(url):
             nouns = s.noun_phrases
             #print nouns
             for noun in nouns:
-                pass
+                url = get_wiki_url(noun)
+                name = get_name_from_url(url)
+                if is_politician(name):
+                    pass
 
 def scrape():
     rows = db.get_rows()
