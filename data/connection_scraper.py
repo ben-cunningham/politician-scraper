@@ -31,7 +31,7 @@ def get_wiki_url(phrase):
     return ""
 
 def get_name_from_url(url):
-    name = re.match(r'/wiki/(\w+)', url)
+    name = re.search(r'/wiki/(\w+)', url)
     if name:
         return name.group(1)
     return None
@@ -56,6 +56,8 @@ def scrape_page(url):
             for noun in nouns:
                 url = get_wiki_url(noun)
                 name = get_name_from_url(url)
+                if not name:
+                    continue
                 print name
                 if is_politician(name):
                     pass
