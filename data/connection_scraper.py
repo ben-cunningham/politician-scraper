@@ -66,7 +66,7 @@ def scrape_page(e1, url):
 def scrape():
     rows = db.get_rows()
     for row in rows:
-        scrape_page("", row[2])
+        scrape_page(row[1], row[2])
 
 if __name__ == '__main__':
     scrape()
