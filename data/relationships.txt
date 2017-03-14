@@ -21,3 +21,4 @@ List of relationships in Politics
 19. None
 20. Consultant
 21. Intern
+22. Co-signers
