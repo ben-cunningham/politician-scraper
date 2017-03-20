@@ -11,11 +11,14 @@ parser = TextParser()
 WIKIPEDIA_SEARCH_URL = \
     "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&search="
 
+def get_entity(name):
+    pass
+
 def is_politician(name):
     row = db.get_entity(name)
     return len(row) > 0
 
-def insert_connection(e1, e2, cls):
+def insert_connection(e1, e2, info, cls):
     pass
 
 def get_sentances(p):
@@ -60,8 +63,10 @@ def scrape_page(e1, url):
                     continue
                 if is_politician(name):
                     e2 = get_entity(name)
-                    cls = parser.classify(s)
-                    insert_connection(e1, e2, cls)
+                    inf = {
+                        'sentance': s
+                    }
+                    insert_connection(e1, e2, inf,  cls)
 
 def scrape():
     rows = db.get_rows()
