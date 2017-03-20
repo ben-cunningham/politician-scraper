@@ -51,6 +51,8 @@ class DB():
         cur.close()
         return l
 
-
-
+    def insert_edge(self, e1, e2, inf, cls=-1):
+        cur = self.conn.cursor()
+        cur.execute(Queries.insert_connection, (e1, e2, cls, inf)
+        self.conn.commit()
         cur.close()

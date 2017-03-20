@@ -2,8 +2,10 @@ class Queries:
 
     create_edge = """
     create table edge (
-        "to" int,
-        "from" int,
+        "to" char,
+        "from" char,
+        "sentence" char,
+        "classification" char,
         constraint edge_pk primary key ("to", "from")
     );
     """
@@ -22,8 +24,8 @@ class Queries:
     """
 
     insert_connection = """
-    insert into edge(to, from)
-    values (%s, %s);
+    insert into edge(to, from, cls, inf)
+    values (%s, %s, %s, %s);
     """
 
     fetch_rows = """
