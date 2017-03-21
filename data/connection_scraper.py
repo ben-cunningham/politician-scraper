@@ -12,7 +12,10 @@ WIKIPEDIA_SEARCH_URL = \
     "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&search="
 
 def get_entity(name):
-    pass
+    row = db.get_entity(name)
+    if len(row) > 0:
+        return row[0]
+    return ''
 
 def is_politician(name):
     row = db.get_entity(name)
@@ -66,6 +69,8 @@ def scrape_page(e1, url):
                     inf = {
                         'sentance': s
                     }
+
+                    # print e1, e2, s
                     # insert_connection(e1, e2, inf,  cls)
 
 def scrape():
