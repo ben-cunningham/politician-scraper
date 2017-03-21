@@ -46,8 +46,8 @@ def get_name_from_url(url):
     return None
 
 def clean_sentance(sent):
-    sent = re.sub('\[[0-9]+\]', '', sent)
-    return sent
+    s = re.sub(r'\[[0-9]+\]', '', sent)
+    return s
 
 def scrape_page(e1, url):
     response = urllib.urlopen(url)
@@ -73,10 +73,10 @@ def scrape_page(e1, url):
                 if is_politician(name):
                     e2 = get_entity(name)
                     inf = {
-                        'sentance': clean_sentance(s)
+                        'sentence': clean_sentance(str(s))
                     }
 
-                    print e1, e2, s
+                    print e1, e2, inf
                     # insert_connection(e1, e2, inf,  cls)
 
 def scrape():
