@@ -18,8 +18,8 @@ def is_politician(name):
     row = db.get_entity(name)
     return len(row) > 0
 
-def insert_connection(e1, e2, info, cls):
-    pass
+def insert_connection(e1, e2, inf, cls=-1):
+    db.insert_edge(e1, e2, inf, cls)
 
 def get_sentances(p):
     if p.getText() is None:
@@ -66,7 +66,7 @@ def scrape_page(e1, url):
                     inf = {
                         'sentance': s
                     }
-                    insert_connection(e1, e2, inf,  cls)
+                    # insert_connection(e1, e2, inf,  cls)
 
 def scrape():
     rows = db.get_rows()
