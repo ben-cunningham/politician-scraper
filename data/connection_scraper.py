@@ -13,8 +13,8 @@ WIKIPEDIA_SEARCH_URL = \
 
 def get_entity(name):
     row = db.get_entity(name)
-    if len(row) > 0:
-        return row[0]
+    if len(row) > 0 and len(row[0]) > 0:
+        return row[0][0]
     return ''
 
 def is_politician(name):
@@ -52,6 +52,9 @@ def scrape_page(e1, url):
     for script in soup(["script", "style"]):
         script.extract()
 
+    e1 = get_entity(e1)
+    
+    # scrape the body of the wiki page
     for p in soup.find_all('p'):
         sentances = get_sentances(p)
         soup_sentances = []
@@ -70,7 +73,7 @@ def scrape_page(e1, url):
                         'sentance': s
                     }
 
-                    # print e1, e2, s
+                    print e1, e2, s
                     # insert_connection(e1, e2, inf,  cls)
 
 def scrape():
