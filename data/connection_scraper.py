@@ -45,6 +45,10 @@ def get_name_from_url(url):
         return name.group(1)
     return None
 
+def clean_sentance(sent):
+    sent = re.sub('\[[0-9]+\]', '', sent)
+    return sent
+
 def scrape_page(e1, url):
     response = urllib.urlopen(url)
     soup = BeautifulSoup(response, 'html.parser')
@@ -53,7 +57,6 @@ def scrape_page(e1, url):
         script.extract()
 
     e1 = get_entity(e1)
-    
     # scrape the body of the wiki page
     for p in soup.find_all('p'):
         sentances = get_sentances(p)
@@ -70,7 +73,7 @@ def scrape_page(e1, url):
                 if is_politician(name):
                     e2 = get_entity(name)
                     inf = {
-                        'sentance': s
+                        'sentance': clean_sentance(s)
                     }
 
                     print e1, e2, s
