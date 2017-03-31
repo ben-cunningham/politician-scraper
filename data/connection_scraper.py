@@ -22,7 +22,15 @@ def is_politician(name):
     return len(row) > 0
 
 def insert_connection(e1, e2, inf, cls=-1):
-    db.insert_edge(e1, e2, inf, cls)
+    a = db.get_edge(e1, e2)
+    b = db.get_edge(e2, e1)
+
+    if len(a) > 0:
+        db.update_edge(e1, e2, inf["sentence"])
+    elif len(b) > 0:
+        db.update_edge(e2, e1, inf["sentence"])
+    else:
+        db.insert_edge(e1, e2, inf['sentence'], cls)
 
 def get_sentances(p):
     if p.getText() is None:
@@ -77,7 +85,7 @@ def scrape_page(e1, url):
                     }
 
                     print e1, e2, inf
-                    # insert_connection(e1, e2, inf,  cls)
+                    insert_connection(e1, e2, inf)
 
 def scrape():
     rows = db.get_rows()

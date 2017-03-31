@@ -4,9 +4,7 @@ class Queries:
     create table edge (
         "to" char,
         "from" char,
-        "sentence" char,
-        "classification" char,
-        constraint edge_pk primary key ("to", "from")
+        "context" char
     );
     """
     
@@ -24,12 +22,20 @@ class Queries:
     """
 
     insert_connection = """
-    insert into edge(to, from, cls, inf)
-    values (%s, %s, %s, %s);
+    insert into edge
+    values (%s, %s,  %s);
     """
 
     fetch_rows = """
     select * from vertex limit 20;
+    """
+
+    get_edge = """
+    select * from edge as e where e.to=%s and e.from=%s;
+    """
+
+    update_edge = """
+    update edge set context=%s where to=%s and from=%s;
     """
 
     get_entity = """

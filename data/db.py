@@ -45,10 +45,15 @@ class DB():
         return [row for row in cur]
 
     def get_edge(self, e1, e2):
-        pass
-    
+        cur = self.conn.cursor()
+        cur.execute(Queries.get_edge, (e1, e2))
+        return [row for row in cur]
+
     def update_edge(self, e1, e2, s):
-        pass
+        cur = self.conn.cursor()
+        cur.execute(Queries.update_edge, (s, e1, e2))
+        self.conn.commit()
+        cur.close()
 
     def get_entity(self, name):
         cur = self.conn.cursor()
@@ -59,6 +64,6 @@ class DB():
 
     def insert_edge(self, e1, e2, inf, cls):
         cur = self.conn.cursor()
-        cur.execute(Queries.insert_connection, (e1, e2, cls, inf))
+        cur.execute(Queries.insert_connection, (e1, e2, inf))
         self.conn.commit()
         cur.close()
