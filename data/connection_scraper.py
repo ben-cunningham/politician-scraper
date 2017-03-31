@@ -26,9 +26,9 @@ def insert_connection(e1, e2, inf, cls=-1):
     b = db.get_edge(e2, e1)
 
     if len(a) > 0:
-        db.update_edge(e1, e2, inf["sentence"])
+        db.update_edge(e1, e2, a[0][2] +"|" +inf["sentence"])
     elif len(b) > 0:
-        db.update_edge(e2, e1, inf["sentence"])
+        db.update_edge(e2, e1, b[0][2] +"|" +inf["sentence"])
     else:
         db.insert_edge(e1, e2, inf['sentence'], cls)
 
