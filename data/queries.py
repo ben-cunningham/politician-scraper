@@ -35,7 +35,7 @@ class Queries:
     """
 
     update_edge = """
-    update edge set context=%s where to=%s and from=%s;
+    update edge set context=%s where "to"=%s and "from"=%s;
     """
 
     get_entity = """
