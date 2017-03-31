@@ -43,7 +43,13 @@ class DB():
         cur = self.conn.cursor()
         cur.execute(Queries.fetch_rows)
         return [row for row in cur]
+
+    def get_edge(self, e1, e2):
+        pass
     
+    def update_edge(self, e1, e2, s):
+        pass
+
     def get_entity(self, name):
         cur = self.conn.cursor()
         cur.execute(Queries.get_entity, (name, ))
