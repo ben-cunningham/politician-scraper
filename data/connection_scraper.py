@@ -68,10 +68,10 @@ def scrape_page(e1, url):
             for noun in nouns:
                 url = get_wiki_url(noun)
                 name = get_name_from_url(url)
-                if not name:
-                    continue
-                if is_politician(name):
+                if name and is_politician(name):
                     e2 = get_entity(name)
+                    if e1 == e2:
+                        continue
                     inf = {
                         'sentence': clean_sentance(str(s))
                     }
