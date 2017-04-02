@@ -1,7 +1,7 @@
 import os.path
 import psycopg2
 import configparser
-import urlparse
+from urllib.parse import urlparse
 
 from queries import Queries
 
@@ -11,9 +11,7 @@ class DB():
         config = configparser.ConfigParser()
         config.read('config.ini')
         url = config.get('Database config', 'DATABASE_URL')
-    
-        urlparse.uses_netloc.append("postgres")
-        url = urlparse.urlparse(url)
+        url = urlparse(url)
     
         self.conn = psycopg2.connect(
             database=url.path[1:],

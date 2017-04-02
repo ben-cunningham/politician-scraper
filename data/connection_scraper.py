@@ -1,5 +1,7 @@
-from db import DB
 import re, json, urllib
+import asyncio, aiohttp, async_timeout
+
+from db import DB
 from textblob import TextBlob
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
@@ -38,14 +40,16 @@ def get_sentances(p):
     blob = TextBlob(p.getText())
     return blob.sentences
 
-def get_wiki_url(phrase):
-    res = urllib.urlopen(WIKIPEDIA_SEARCH_URL +str(phrase.encode('ascii', 'ignore'))).read()
-    res =  json.loads(res)
-    if len(res) >= 4:
-        if len(res[3]) > 0:
-            return res[3][0]
+async def get_wiki_url(session, phrase):
+    with async_timeout.timeout(100):
+        url = WIKIPEDIA_SEARCH_URL +phrase 
+        async with session.get(url) as response:
+            res = await response.json()
+            if len(res) >= 4:
+                if len(res[3]) > 0:
+                    return res[3][0]
 
-    return ""
+            return ""
 
 def get_name_from_url(url):
     name = re.search(r'/wiki/(\w+)', url)
@@ -57,40 +61,46 @@ def clean_sentance(sent):
     s = re.sub(r'\[[0-9]+\]', '', sent)
     return s
 
-def scrape_page(e1, url):
-    response = urllib.urlopen(url)
-    soup = BeautifulSoup(response, 'html.parser')
-    soup = soup.find('div', {'id': 'bodyContent'})
-    for script in soup(["script", "style"]):
-        script.extract()
+async def scrape_page(session, e1, url):
+    with async_timeout.timeout(100):
+        async with session.get(url) as response:
+            data = await response.text()
+            soup = BeautifulSoup(data, 'html.parser')
+            soup = soup.find('div', {'id': 'bodyContent'})
+            for script in soup(["script", "style"]):
+                script.extract()
 
-    e1 = get_entity(e1)
-    # scrape the body of the wiki page
-    for p in soup.find_all('p'):
-        sentances = get_sentances(p)
-        soup_sentances = []
-        for s in sentances:
-            if len(s) <= 1:
-                continue
-            nouns = s.noun_phrases
-            for noun in nouns:
-                url = get_wiki_url(noun)
-                name = get_name_from_url(url)
-                if name and is_politician(name):
-                    e2 = get_entity(name)
-                    if e1 == e2:
+            e1 = get_entity(e1)
+            # scrape the body of the wiki page
+            for p in soup.find_all('p'):
+                sentances = get_sentances(p)
+                soup_sentances = []
+                for s in sentances:
+                    if len(s) <= 1:
                         continue
-                    inf = {
-                        'sentence': clean_sentance(str(s))
-                    }
+                    nouns = s.noun_phrases
+                    for noun in nouns:
+                        url = await get_wiki_url(session, noun)
+                        name = get_name_from_url(url)
+                        if name and is_politician(name):
+                            e2 = get_entity(name)
+                            print(name)
+                            if e1 == e2:
+                                continue
+                            inf = {
+                                'sentence': clean_sentance(str(s))
+                            }
 
-                    print e1, e2, inf
-                    insert_connection(e1, e2, inf)
+                            print(e1, e2, inf)
+                            insert_connection(e1, e2, inf)
 
-def scrape():
+async def scrape(loop):
     rows = db.get_rows()
-    for row in rows:
-        scrape_page(row[1], row[2])
+    async with aiohttp.ClientSession(loop=loop) as session:
+         await asyncio.gather(
+             *[scrape_page(session, row[1], row[2]) for row in rows]
+         )
 
 if __name__ == '__main__':
-    scrape()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(scrape(loop))
