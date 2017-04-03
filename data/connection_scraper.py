@@ -100,7 +100,7 @@ async def scrape(loop):
     rows = [(row[1].strip(), row[2],) for row in rows]
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
-             *[scrape_page(session, row[1], row[2]) for row in rows]
+             *[scrape_page(session, row[0], row[1]) for row in rows]
          )
 
 if __name__ == '__main__':
