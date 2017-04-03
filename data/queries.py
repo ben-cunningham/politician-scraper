@@ -31,7 +31,7 @@ class Queries:
     """
 
     get_edge = """
-    select * from edge as e where e.to=%s and e.from=%s;
+    select * from edge where "to"=%s and "from"=%s;
     """
 
     update_edge = """
