@@ -62,42 +62,42 @@ def clean_sentance(sent):
     return s
 
 async def scrape_page(session, e1, url):
-    with async_timeout.timeout(100):
-        async with session.get(url) as response:
-            data = await response.text()
-            soup = BeautifulSoup(data, 'html.parser')
-            soup = soup.find('div', {'id': 'bodyContent'})
-            for script in soup(["script", "style"]):
-                script.extract()
+    async with session.get(url) as response:
+        data = await response.text()
+        soup = BeautifulSoup(data, 'html.parser')
+        soup = soup.find('div', {'id': 'bodyContent'})
+        for script in soup(["script", "style"]):
+            script.extract()
 
-            e1 = get_entity(e1)
-            # scrape the body of the wiki page
-            for p in soup.find_all('p'):
-                sentances = get_sentances(p)
-                soup_sentances = []
-                for s in sentances:
-                    if len(s) <= 1:
-                        continue
-                    nouns = s.noun_phrases
-                    for noun in nouns:
-                        url = await get_wiki_url(session, noun)
-                        name = get_name_from_url(url)
-                        if name and is_politician(name):
-                            e2 = get_entity(name).strip()
-                            if e1 == e2:
-                                continue
-                            inf = {
-                                'sentence': clean_sentance(str(s))
-                            }
+        e1 = get_entity(e1)
+        # scrape the body of the wiki page
+        for p in soup.find_all('p'):
+            sentances = get_sentances(p)
+            soup_sentances = []
+            for s in sentances:
+                if len(s) <= 1:
+                    continue
+                nouns = s.noun_phrases
+                for noun in nouns:
+                    url = await get_wiki_url(session, noun)
+                    name = get_name_from_url(url)
+                    if name and is_politician(name):
+                        e2 = get_entity(name).strip()
+                        if e1 == e2:
+                            continue
+                        inf = {
+                            'sentence': clean_sentance(str(s))
+                        }
 
-                            try:
-                                insert_connection(e1, e2, inf)
-                            except e:
-                                print('couldn\'t insert connection for {name}')
+                        try:
+                            insert_connection(e1, e2, inf)
+                        except e:
+                            print('couldn\'t insert connection for {name}')
 
 async def scrape(loop):
     rows = db.get_rows()
     rows = [(row[1].strip(), row[2],) for row in rows]
+    print("Retrieved all " +str(len(rows)))
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
              *[scrape_page(session, row[0], row[1]) for row in rows]
