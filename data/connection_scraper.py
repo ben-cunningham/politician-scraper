@@ -9,6 +9,7 @@ from text_parser import TextParser
 
 db = DB()
 parser = TextParser()
+conn_count = 0
 
 WIKIPEDIA_SEARCH_URL = \
     "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&search="
@@ -91,12 +92,16 @@ async def scrape_page(session, e1, url):
 
                         try:
                             insert_connection(e1, e2, inf)
+                            conn_count += 1
+                            print(f"count: {conn_count}")
                         except e:
-                            print('couldn\'t insert connection for {name}')
+                            print(f'couldn\'t insert connection for {name}')
 
 
 async def scrape(loop):
+    print("Connecting to database")
     rows = db.get_rows()
+    print(f"Recieved {len(rows)} rows")
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
              *[scrape_page(session, row[1].strip(), row[2]) for row in rows]
