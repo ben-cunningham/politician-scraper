@@ -27,7 +27,7 @@ class Queries:
     """
 
     fetch_rows = """
-    select * from vertex limit 20;
+    select * from vertex;
     """
 
     get_edge = """
