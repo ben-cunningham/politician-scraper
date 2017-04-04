@@ -94,13 +94,12 @@ async def scrape_page(session, e1, url):
                         except e:
                             print('couldn\'t insert connection for {name}')
 
+
 async def scrape(loop):
     rows = db.get_rows()
-    rows = [(row[1].strip(), row[2],) for row in rows]
-    print("Retrieved all " +str(len(rows)))
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
-             *[scrape_page(session, row[0], row[1]) for row in rows]
+             *[scrape_page(session, row[1].strip(), row[2]) for row in rows]
          )
 
 if __name__ == '__main__':
