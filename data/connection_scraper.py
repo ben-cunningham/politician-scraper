@@ -101,13 +101,16 @@ async def scrape_page(session, e1, url):
 
 async def scrape(loop):
     print("Connecting to database")
-    rows = db.get_rows()
+    db_rows = db.get_rows()
+    rows = [(row[1], row[2]) for row in db_rows]
+    print("Collected "+str(len(rows)) +" rows")
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
-             *[scrape_page(session, row[1], row[2]) for row in rows],
+             *[scrape_page(session, row[0], row[1]) for row in rows],
              return_exceptions=True
          )
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(scrape(loop))
+    loop.close()
