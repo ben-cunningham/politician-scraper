@@ -9,7 +9,6 @@ from text_parser import TextParser
 
 db = DB()
 parser = TextParser()
-conn_count = 0
 
 WIKIPEDIA_SEARCH_URL = \
     "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&search="
@@ -42,7 +41,7 @@ def get_sentances(p):
     return blob.sentences
 
 async def get_wiki_url(session, phrase):
-    with async_timeout.timeout(100):
+    with async_timeout.timeout(1000):
         url = WIKIPEDIA_SEARCH_URL +phrase 
         async with session.get(url) as response:
             res = await response.json()
@@ -70,7 +69,7 @@ async def scrape_page(session, e1, url):
         for script in soup(["script", "style"]):
             script.extract()
 
-        e1 = get_entity(e1)
+        e1 = get_entity(e1).strip()
         # scrape the body of the wiki page
         for p in soup.find_all('p'):
             sentances = get_sentances(p)
@@ -80,7 +79,11 @@ async def scrape_page(session, e1, url):
                     continue
                 nouns = s.noun_phrases
                 for noun in nouns:
-                    url = await get_wiki_url(session, noun)
+                    try:
+                        url = await get_wiki_url(session, noun)
+                    except asyncio.TimeoutError:
+                        print('could not get wiki url for ' +str(noun))
+                        continue
                     name = get_name_from_url(url)
                     if name and is_politician(name):
                         e2 = get_entity(name).strip()
@@ -89,22 +92,19 @@ async def scrape_page(session, e1, url):
                         inf = {
                             'sentence': clean_sentance(str(s))
                         }
-
+                        
                         try:
                             insert_connection(e1, e2, inf)
-                            conn_count += 1
-                            print(f"count: {conn_count}")
-                        except e:
-                            print(f'couldn\'t insert connection for {name}')
+                        except:
+                            print('couldn\'t insert connection for name')
 
 
 async def scrape(loop):
     print("Connecting to database")
     rows = db.get_rows()
-    print(f"Recieved {len(rows)} rows")
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
-             *[scrape_page(session, row[1].strip(), row[2]) for row in rows]
+             *[scrape_page(session, row[1], row[2]) for row in rows]
          )
 
 if __name__ == '__main__':
