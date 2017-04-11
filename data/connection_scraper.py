@@ -44,7 +44,11 @@ async def get_wiki_url(session, phrase):
     with async_timeout.timeout(1000):
         url = WIKIPEDIA_SEARCH_URL +phrase 
         async with session.get(url) as response:
-            res = await response.json()
+            try:
+                res = await response.json()
+            except Exception as e:
+                print("could not convert to jsoni " +url)
+                return ""
             if len(res) >= 4:
                 if len(res[3]) > 0:
                     return res[3][0]
@@ -61,9 +65,13 @@ def clean_sentance(sent):
     s = re.sub(r'\[[0-9]+\]', '', sent)
     return s
 
-async def scrape_page(session, e1, url):
-    async with session.get(url) as response:
-        data = await response.text()
+async def scrape_page(session, sem, e1, url):
+    async with sem, session.get(url) as response:
+        try:
+            data = await response.text()
+        except Exception as e:
+            print("could not get data from " +url)
+            return
         soup = BeautifulSoup(data, 'html.parser')
         soup = soup.find('div', {'id': 'bodyContent'})
         for script in soup(["script", "style"]):
@@ -98,15 +106,18 @@ async def scrape_page(session, e1, url):
                         except:
                             print('couldn\'t insert connection for name')
 
+        print("Finished scraping " +e1)
+
 
 async def scrape(loop):
     print("Connecting to database")
     db_rows = db.get_rows()
     rows = [(row[1], row[2]) for row in db_rows]
     print("Collected "+str(len(rows)) +" rows")
+    sem = asyncio.Semaphore(1000)
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
-             *[scrape_page(session, row[0], row[1]) for row in rows],
+             *[scrape_page(session, sem, row[0], row[1]) for row in rows],
              return_exceptions=True
          )
 
@@ -114,3 +125,4 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(scrape(loop))
     loop.close()
+    print("Scraping finished, closing...")
