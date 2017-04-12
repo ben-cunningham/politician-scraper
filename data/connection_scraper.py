@@ -109,12 +109,11 @@ async def scrape_page(session, sem, e1, url):
         print("Finished scraping " +e1)
 
 
-async def scrape(loop):
+async def scrape(loop, sem):
     print("Connecting to database")
     db_rows = db.get_rows()
     rows = [(row[1], row[2]) for row in db_rows]
     print("Collected "+str(len(rows)) +" rows")
-    sem = asyncio.Semaphore(1000)
     async with aiohttp.ClientSession(loop=loop) as session:
          await asyncio.gather(
              *[scrape_page(session, sem, row[0], row[1]) for row in rows],
@@ -122,7 +121,8 @@ async def scrape(loop):
          )
 
 if __name__ == '__main__':
+    sem = asyncio.Semaphore(100)
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(scrape(loop))
+    loop.run_until_complete(scrape(loop, sem))
     loop.close()
     print("Scraping finished, closing...")
