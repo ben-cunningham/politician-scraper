@@ -40,7 +40,7 @@ class DB():
     def get_rows(self):
         cur = self.conn.cursor()
         cur.execute(Queries.fetch_rows)
-        return cur.fetchall()
+        return cur # shouldn't return cur the only place here but it's temp...
 
     def get_edge(self, e1, e2):
         cur = self.conn.cursor()

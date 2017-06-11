@@ -8,7 +8,6 @@ from bs4.element import NavigableString
 from text_parser import TextParser
 
 db = DB()
-parser = TextParser()
 
 WIKIPEDIA_SEARCH_URL = \
     "https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&search="
@@ -111,14 +110,19 @@ async def scrape_page(session, sem, e1, url):
 
 async def scrape(loop, sem):
     print("Connecting to database")
-    db_rows = db.get_rows()
-    rows = [(row[1], row[2]) for row in db_rows]
-    print("Collected "+str(len(rows)) +" rows")
-    async with aiohttp.ClientSession(loop=loop) as session:
-         await asyncio.gather(
-             *[scrape_page(session, sem, row[0], row[1]) for row in rows],
-             return_exceptions=True
-         )
+    cursor = db.get_rows()
+    while True:
+        db_rows = cursor.fetchmany(100)
+        if not db_rows:
+            break
+
+        rows = [(row[1], row[2]) for row in db_rows]
+        print("Collected "+str(len(rows)) +" rows")
+        async with aiohttp.ClientSession(loop=loop) as session:
+             await asyncio.gather(
+                 *[scrape_page(session, sem, row[0], row[1]) for row in rows],
+                 return_exceptions=True
+             )
 
 if __name__ == '__main__':
     sem = asyncio.Semaphore(100)
